@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="mypage">
+  <h2>マイページ</h2>
+  <p class="mypage-username">{{ current_user.username }}</p>
+  <a href="/plans/new" class="btn-primary">新しいプランを投稿する</a>
+
+  <h3 class="section-title" style="margin-top:40px">投稿したプラン</h3>
+  <div class="plan-grid">
+    {% for plan in current_user.plans %}
+    <a href="/plans/{{ plan.id }}" class="plan-card">
+      {% if plan.cover_image %}
+        <img src="{{ url_for('static', filename='uploads/' + plan.cover_image) }}"
+             class="plan-card-image" alt="{{ plan.title }}">
+      {% else %}
+        <div class="plan-card-image"></div>
+      {% endif %}
+      <div class="plan-card-body">
+        <span class="plan-area">{{ plan.area or "エリア未設定" }}</span>
+        <h3 class="plan-title">{{ plan.title }}</h3>
+        <p class="plan-meta">{{ plan.days }}日間</p>
+      </div>
+    </a>
+    {% else %}
+    <p>まだプランがありません。</p>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

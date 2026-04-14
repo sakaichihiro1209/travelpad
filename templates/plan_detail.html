@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="plan-detail">
+  <div class="plan-detail-header">
+    {% if plan.cover_image %}
+      <img src="{{ url_for('static', filename='uploads/' + plan.cover_image) }}"
+           class="plan-cover-image" alt="{{ plan.title }}">
+    {% endif %}
+    <span class="plan-area">{{ plan.area or "エリア未設定" }}</span>
+    <h1>{{ plan.title }}</h1>
+    <p class="plan-meta">
+      {{ plan.days }}日間 &nbsp;|&nbsp; 投稿者: {{ plan.author.username }}
+      &nbsp;|&nbsp; いいね {{ plan.likes|length }}
+    </p>
+  </div>
+
+  <div class="plan-detail-body">
+    <h2>プラン概要</h2>
+    <p>{{ plan.description or "説明はありません" }}</p>
+  </div>
+
+  {% if items_by_day %}
+  <div class="plan-detail-body">
+    <h2>旅程</h2>
+    {% for day, items in items_by_day.items() %}
+    <h3 class="spot-day-label">{{ day }}日目</h3>
+    <ul class="spot-list">
+      {% for item in items %}
+      <li class="spot-item">
+        {% if item.item_type == "spot" %}
+          <span class="item-badge badge-spot">スポット</span>
+          <span class="spot-name">{{ item.name }}</span>
+          {% if item.memo %}<p class="spot-memo">{{ item.memo }}</p>{% endif %}
+        {% else %}
+          <span class="item-badge badge-move">移動</span>
+          <span class="spot-name">{{ item.transport }}</span>
+          {% if item.duration %}
+            <span class="move-duration">{{ item.duration }}分</span>
+          {% endif %}
+          {% if item.memo %}<p class="spot-memo">{{ item.memo }}</p>{% endif %}
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="plan-actions">
+    {% if current_user.is_authenticated %}
+      <form method="POST" action="/plans/{{ plan.id }}/like">
+        <button type="submit" class="btn-like">
+          {% if liked %}いいね済み ♥{% else %}いいね ♡{% endif %}
+          {{ plan.likes|length }}
+        </button>
+      </form>
+    {% endif %}
+
+    {% if current_user.is_authenticated and current_user.id == plan.user_id %}
+      <a href="/plans/{{ plan.id }}/edit" class="btn-outline">編集する</a>
+      <form method="POST" action="/plans/{{ plan.id }}/delete"
+            onsubmit="return confirm('本当に削除しますか？')">
+        <button type="submit" class="btn-danger">削除する</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

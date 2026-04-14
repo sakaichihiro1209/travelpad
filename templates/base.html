@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>travelpad</title>
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/" class="nav-logo">travelpad</a>
+    <div class="nav-links">
+      <a href="/plans">プランを探す</a>
+      {% if current_user.is_authenticated %}
+        <a href="/mypage">マイページ</a>
+        <span class="nav-username">{{ current_user.username }}</span>
+        <a href="/logout" class="btn-outline">ログアウト</a>
+      {% else %}
+        <a href="/login">ログイン</a>
+        <a href="/register" class="btn-primary">新規登録</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <main class="container">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <p class="flash-msg">{{ messages[0] }}</p>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2026 travelpad</p>
+  </footer>
+
+</body>
+</html>

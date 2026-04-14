@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="form-container">
+  <h2>旅行プランを投稿する</h2>
+  <form method="POST" action="/plans/new" enctype="multipart/form-data">
+
+    <div class="form-group">
+      <label>タイトル <span class="required">必須</span></label>
+      <input type="text" name="title" required>
+    </div>
+    <div class="form-group">
+      <label>エリア</label>
+      <select name="area" class="search-select">
+        <option value="">選択してください</option>
+        {% for pref in prefectures %}
+          <option value="{{ pref }}">{{ pref }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>旅行日数 <span class="required">必須</span></label>
+      <input type="number" name="days" min="1" max="30" required>
+    </div>
+    <div class="form-group">
+      <label>プランの説明</label>
+      <textarea name="description" rows="4"></textarea>
+    </div>
+    <div class="form-group">
+      <label>カバー画像</label>
+      <input type="file" name="cover_image" accept=".jpg,.jpeg,.png,.gif">
+      <p class="form-hint">JPG・PNG・GIF / 2MB以内 / 未選択でも投稿できます</p>
+    </div>
+
+    <h3 class="spots-title">スポット・移動を追加</h3>
+    <div id="items-container"></div>
+
+    <div class="item-add-buttons">
+      <button type="button" class="btn-outline" onclick="addSpot()">+ スポットを追加</button>
+      <button type="button" class="btn-outline" onclick="addMove()">+ 移動を追加</button>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-primary">投稿する</button>
+      <a href="/" class="btn-cancel">キャンセル</a>
+    </div>
+
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+const TRANSPORT_TYPES = [
+  {% for t in transport_types %}
+    "{{ t }}"{% if not loop.last %},{% endif %}
+  {% endfor %}
+];
+
+const container = document.getElementById("items-container");
+
+Sortable.create(container, {
+  animation: 150,
+  handle: ".drag-handle",
+  ghostClass: "sortable-ghost"
+});
+
+function addSpot() {
+  const div = document.createElement("div");
+  div.className = "item-row item-row-spot";
+  div.innerHTML = `
+    <div class="item-row-header">
+      <div class="drag-handle">&#9776;</div>
+      <span class="item-badge badge-spot">スポット</span>
+      <button type="button" class="btn-spot-remove" onclick="removeItem(this)">削除</button>
+    </div>
+    <div class="item-row-fields">
+      <div class="form-group">
+        <label>日目 <span class="required">必須</span></label>
+        <input type="number" name="spot_day" min="1" value="1" required>
+      </div>
+      <div class="form-group">
+        <label>スポット名 <span class="required">必須</span></label>
+        <input type="text" name="spot_name" placeholder="例：札幌駅" required>
+      </div>
+      <div class="form-group">
+        <label>メモ</label>
+        <input type="text" name="spot_memo" placeholder="メモ（任意）">
+      </div>
+      <input type="hidden" name="spot_order" value="0">
+    </div>
+  `;
+  container.appendChild(div);
+}
+
+function addMove() {
+  const opts = TRANSPORT_TYPES
+    .map(t => `<option value="${t}">${t}</option>`)
+    .join("");
+  const div = document.createElement("div");
+  div.className = "item-row item-row-move";
+  div.innerHTML = `
+    <div class="item-row-header">
+      <div class="drag-handle">&#9776;</div>
+      <span class="item-badge badge-move">移動</span>
+      <button type="button" class="btn-spot-remove" onclick="removeItem(this)">削除</button>
+    </div>
+    <div class="item-row-fields">
+      <div class="form-group">
+        <label>日目 <span class="required">必須</span></label>
+        <input type="number" name="move_day" min="1" value="1" required>
+      </div>
+      <div class="form-group">
+        <label>移動手段 <span class="required">必須</span></label>
+        <select name="move_transport" required>
+          <option value="">選択してください</option>
+          ${opts}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>移動時間（分）</label>
+        <input type="number" name="move_duration" min="1" placeholder="例：30">
+      </div>
+      <div class="form-group">
+        <label>メモ</label>
+        <input type="text" name="move_memo" placeholder="メモ（任意）">
+      </div>
+      <input type="hidden" name="move_order" value="0">
+    </div>
+  `;
+  container.appendChild(div);
+}
+
+function removeItem(btn) {
+  btn.closest(".item-row").remove();
+}
+
+function assignOrders() {
+  const rows = container.querySelectorAll(".item-row");
+  rows.forEach((row, index) => {
+    const orderInput = row.querySelector(
+      "input[name='spot_order'], input[name='move_order']"
+    );
+    if (orderInput) orderInput.value = index + 1;
+  });
+}
+
+document.querySelector("form").addEventListener("submit", function () {
+  assignOrders();
+});
+</script>
+{% endblock %}

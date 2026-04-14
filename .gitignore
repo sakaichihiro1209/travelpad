@@ -1,0 +1,6 @@
+.env
+venv/
+travelpad.db
+__pycache__/
+*.pyc
+static/uploads/

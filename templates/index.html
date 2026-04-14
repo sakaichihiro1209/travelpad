@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="section">
+  <h2 class="section-title">新着プラン</h2>
+  <div class="plan-grid">
+    {% for plan in new_plans %}
+    <a href="/plans/{{ plan.id }}" class="plan-card">
+      {% if plan.cover_image %}
+        <img src="{{ url_for('static', filename='uploads/' + plan.cover_image) }}"
+             class="plan-card-image" alt="{{ plan.title }}">
+      {% else %}
+        <div class="plan-card-image"></div>
+      {% endif %}
+      <div class="plan-card-body">
+        <span class="plan-area">{{ plan.area or "エリア未設定" }}</span>
+        <h3 class="plan-title">{{ plan.title }}</h3>
+        <p class="plan-meta">{{ plan.days }}日間 | {{ plan.author.username }}</p>
+      </div>
+    </a>
+    {% else %}
+    <p>まだプランがありません。</p>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">人気プラン</h2>
+  <div class="plan-grid">
+    {% for plan in popular_plans %}
+    <a href="/plans/{{ plan.id }}" class="plan-card">
+      {% if plan.cover_image %}
+        <img src="{{ url_for('static', filename='uploads/' + plan.cover_image) }}"
+             class="plan-card-image" alt="{{ plan.title }}">
+      {% else %}
+        <div class="plan-card-image"></div>
+      {% endif %}
+      <div class="plan-card-body">
+        <span class="plan-area">{{ plan.area or "エリア未設定" }}</span>
+        <h3 class="plan-title">{{ plan.title }}</h3>
+        <p class="plan-meta">{{ plan.days }}日間 | いいね {{ plan.likes|length }}</p>
+      </div>
+    </a>
+    {% else %}
+    <p>まだプランがありません。</p>
+    {% endfor %}
+  </div>
+</section>
+
+{% endblock %}

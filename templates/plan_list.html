@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="list-header">
+  <h2>プランを探す</h2>
+  <form method="GET" action="/plans" class="search-form">
+    <select name="area" class="search-select">
+      <option value="">すべてのエリア</option>
+      {% for pref in prefectures %}
+        <option value="{{ pref }}"
+          {% if area == pref %}selected{% endif %}>
+          {{ pref }}
+        </option>
+      {% endfor %}
+    </select>
+    <input type="text" name="keyword" value="{{ keyword }}"
+           placeholder="場所名で検索（例：札幌駅）">
+    <button type="submit" class="btn-primary">検索</button>
+  </form>
+</div>
+
+{% if keyword or area %}
+  <p class="search-result-msg">
+    {% if area %}{{ area }} / {% endif %}
+    {% if keyword %}
+      {% if search_type == "exact" %}
+        「{{ keyword }}」を含むプラン
+      {% elif search_type == "like" %}
+        「{{ keyword }}」に類似する場所を含むプラン
+      {% endif %}
+    {% endif %}
+    {{ plans|length }} 件
+  </p>
+{% endif %}
+
+<div class="plan-grid">
+  {% for plan in plans %}
+  <a href="/plans/{{ plan.id }}" class="plan-card">
+    {% if plan.cover_image %}
+      <img src="{{ url_for('static', filename='uploads/' + plan.cover_image) }}"
+           class="plan-card-image" alt="{{ plan.title }}">
+    {% else %}
+      <div class="plan-card-image"></div>
+    {% endif %}
+    <div class="plan-card-body">
+      <span class="plan-area">{{ plan.area or "エリア未設定" }}</span>
+      <h3 class="plan-title">{{ plan.title }}</h3>
+      <p class="plan-meta">{{ plan.days }}日間 | {{ plan.author.username }}</p>
+    </div>
+  </a>
+  {% else %}
+  <p class="no-result">該当するプランが見つかりませんでした。</p>
+  {% endfor %}
+</div>
+
+{% endblock %}
