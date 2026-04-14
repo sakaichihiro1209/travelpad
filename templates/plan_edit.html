@@ -34,7 +34,7 @@
       <label>カバー画像</label>
       {% if plan.cover_image %}
         <div class="current-image">
-          <img src="{{ url_for('static', filename='uploads/' + plan.cover_image) }}"
+          <img src="{{ plan.cover_image }}">
                alt="現在のカバー画像">
           <p class="form-hint">新しい画像を選択すると上書きされます</p>
         </div>

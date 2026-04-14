@@ -5,6 +5,13 @@ from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from database import db
 from models import Plan, PlanItem, Place, Like, TRANSPORT_TYPES
+import cloudinary.uploader
+
+cloudinary.config(
+    cloud_name    = current_app.config["CLOUDINARY_CLOUD_NAME"],
+    api_key       = current_app.config["CLOUDINARY_API_KEY"],
+    api_secret    = current_app.config["CLOUDINARY_API_SECRET"]
+)
 
 plans = Blueprint("plans", __name__)
 
@@ -37,17 +44,26 @@ def get_or_create_place(name):
 
 
 def save_cover_image(file):
-    ext      = file.filename.rsplit(".", 1)[1].lower()
-    filename = f"{uuid.uuid4().hex}.{ext}"
-    file.save(os.path.join(current_app.config["UPLOAD_FOLDER"], filename))
-    return filename
+    result = cloudinary.uploader.upload(
+        file,
+        folder   = "travelpad",   # Cloudinary上のフォルダ名
+        crop     = "fill",        # 画像をトリミング
+        width    = 800,           # 最大幅
+        height   = 500,           # 最大高さ
+    )
+    return result["secure_url"]   # CloudinaryのURLを返す
 
 
-def delete_cover_image(filename):
-    if filename:
-        path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
-        if os.path.exists(path):
-            os.remove(path)
+def delete_cover_image(url):
+    if url:
+        # URLからpublic_idを取り出して削除
+        # 例: https://res.cloudinary.com/cloud/image/upload/v123/travelpad/abc.jpg
+        #     → travelpad/abc
+        try:
+            public_id = "/".join(url.split("/")[-2:]).rsplit(".", 1)[0]
+            cloudinary.uploader.destroy(public_id)
+        except Exception:
+            pass  # 削除失敗してもアプリは止めない
 
 
 def build_items_by_day(plan):
