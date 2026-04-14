@@ -6,11 +6,7 @@ from database import db
 from sqlalchemy import func
 import cloudinary
 
-cloudinary.config(
-    cloud_name = os.environ.get("CLOUDINARY_CLOUD_NAME"),
-    api_key    = os.environ.get("CLOUDINARY_API_KEY"),
-    api_secret = os.environ.get("CLOUDINARY_API_SECRET")
-)
+
 
 load_dotenv()
 
@@ -21,7 +17,11 @@ app.config["SQLALCHEMY_DATABASE_URI"]  = "sqlite:///travelpad.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["UPLOAD_FOLDER"]            = os.path.join("static", "uploads")
 app.config["MAX_CONTENT_LENGTH"]       = 2 * 1024 * 1024  # 2MB
-
+cloudinary.config(
+    cloud_name = os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    api_key    = os.environ.get("CLOUDINARY_API_KEY"),
+    api_secret = os.environ.get("CLOUDINARY_API_SECRET")
+)
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 db.init_app(app)
