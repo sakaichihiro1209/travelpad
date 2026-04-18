@@ -4,8 +4,12 @@
 <div class="plan-detail">
   <div class="plan-detail-header">
     {% if plan.cover_image %}
-      <img src="{{ url_for('static', filename='uploads/' + plan.cover_image) }}"
-           class="plan-cover-image" alt="{{ plan.title }}">
+      {% if plan.cover_image.startswith('http') %}
+        <img src="{{ plan.cover_image }}" class="plan-cover-image" alt="{{ plan.title }}">
+      {% else %}
+        <img src="{{ url_for('static', filename='uploads/' + plan.cover_image) }}"
+            class="plan-cover-image" alt="{{ plan.title }}">
+      {% endif %}
     {% endif %}
     <span class="plan-area">{{ plan.area or "エリア未設定" }}</span>
     <h1>{{ plan.title }}</h1>
