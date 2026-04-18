@@ -7,11 +7,6 @@ from database import db
 from models import Plan, PlanItem, Place, Like, TRANSPORT_TYPES
 import cloudinary.uploader
 
-cloudinary.config(
-    cloud_name    = current_app.config["CLOUDINARY_CLOUD_NAME"],
-    api_key       = current_app.config["CLOUDINARY_API_KEY"],
-    api_secret    = current_app.config["CLOUDINARY_API_SECRET"]
-)
 
 plans = Blueprint("plans", __name__)
 
