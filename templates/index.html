@@ -7,8 +7,13 @@
     {% for plan in new_plans %}
     <a href="/plans/{{ plan.id }}" class="plan-card">
       {% if plan.cover_image %}
-        <img src="{{ url_for('static', filename='uploads/' + plan.cover_image) }}"
-             class="plan-card-image" alt="{{ plan.title }}">
+        {% if plan.cover_image.startswith('http') %}
+          <img src="{{ plan.cover_image }}"
+               class="plan-card-image" alt="{{ plan.title }}">
+        {% else %}
+          <img src="{{ url_for('static', filename='uploads/' + plan.cover_image) }}"
+               class="plan-card-image" alt="{{ plan.title }}">
+        {% endif %}
       {% else %}
         <div class="plan-card-image"></div>
       {% endif %}
@@ -31,14 +36,13 @@
     <a href="/plans/{{ plan.id }}" class="plan-card">
       {% if plan.cover_image %}
         {% if plan.cover_image.startswith('http') %}
-          <img src="{{ plan.cover_image }}" class="plan-card-image" alt="{{ plan.title }}">
+          <img src="{{ plan.cover_image }}"
+               class="plan-card-image" alt="{{ plan.title }}">
         {% else %}
           <img src="{{ url_for('static', filename='uploads/' + plan.cover_image) }}"
-              class="plan-card-image" alt="{{ plan.title }}">
+               class="plan-card-image" alt="{{ plan.title }}">
         {% endif %}
       {% else %}
-        <div class="plan-card-image"></div>
-      {% endif %}
         <div class="plan-card-image"></div>
       {% endif %}
       <div class="plan-card-body">
