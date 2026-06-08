@@ -13,8 +13,10 @@ load_dotenv()
 app = Flask(__name__)
 app.config["SECRET_KEY"]               = os.environ.get("SECRET_KEY")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SQLALCHEMY_DATABASE_URI"]  = "sqlite:///travelpad.db"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+database_url = os.environ.get("DATABASE_URL", "sqlite:///travelpad.db")
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+app.config["SQLALCHEMY_DATABASE_URI"]  = database_url
 app.config["UPLOAD_FOLDER"]            = os.path.join("static", "uploads")
 app.config["MAX_CONTENT_LENGTH"]       = 2 * 1024 * 1024  # 2MB
 cloudinary.config(
@@ -23,13 +25,6 @@ cloudinary.config(
     api_secret = os.environ.get("CLOUDINARY_API_SECRET")
 )
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
-
-
-cloudinary.config(
-    cloud_name = os.environ.get("CLOUDINARY_CLOUD_NAME"),
-    api_key    = os.environ.get("CLOUDINARY_API_KEY"),
-    api_secret = os.environ.get("CLOUDINARY_API_SECRET")
-)
 
 db.init_app(app)
 
@@ -68,6 +63,11 @@ from auth import auth
 from plans import plans
 app.register_blueprint(auth)
 app.register_blueprint(plans)
+
+if os.environ.get("AUTO_CREATE_DB") == "1":
+    with app.app_context():
+        import models  # noqa: F401
+        db.create_all()
 
 if __name__ == "__main__":
     app.run(debug=True)
